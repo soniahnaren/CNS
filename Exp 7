@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <string.h>
+void decrypt(const char *ciphertext, const char *map) {
+    for (int i = 0; ciphertext[i]; i++) {
+        char c = ciphertext[i];
+        if (c >= 32 && c <= 126 && map[c - 32])
+            putchar(map[c - 32]);
+        else
+            putchar(c);
+    }
+}
+int main() {
+    const char *cipher =
+        "53‡‡†305))6*;4826)4‡.)4‡);806*;48†8¶60))85;;]8*;:‡*8†83\n"
+        "(88)5*†;46(;88*96*?;8)*‡(;485);5*†2:*‡(;4956*2(5*—4)8¶8*\n"
+        ";4069285);)6†8)4‡‡;1(‡9;48081;8:8‡1;48†85;4)485†528806*81\n"
+        "(‡9;48;(88;4(‡?34;48)4‡;161;:188;‡?;";
+    char map[95] = {0};
+    // '8' -> 'e', '4' -> 't', '‡' -> 'h', '5' -> 'o', '6' -> 'a', '†' -> 'n', '3' -> 'd'
+    map['8' - 32] = 'e';
+    map['4' - 32] = 't';
+    map['‡' - 32] = 'h';
+    map['5' - 32] = 'o';
+    map['6' - 32] = 'a';
+    map['†' - 32] = 'n';
+    map['3' - 32] = 'd';
+    printf("Decrypted text (partial):\n");
+    decrypt(cipher, map);
+
+    return 0;
+}
