@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+char matrix[5][5] = {
+    {'M','F','H','I','K'},
+    {'U','N','O','P','Q'},
+    {'Z','V','W','X','Y'},
+    {'E','L','A','R','G'},
+    {'D','S','T','B','C'}
+};
+void findPos(char c, int *row, int *col) {
+    if (c == 'J') c = 'I';
+    for (int i = 0; i < 5; i++)
+        for (int j = 0; j < 5; j++)
+            if (matrix[i][j] == c) {
+                *row = i; *col = j;
+                return;
+            }
+}
+void preprocess(char *msg, char *out) {
+    int len = 0;
+    for (int i = 0; msg[i]; i++) {
+        if (isalpha(msg[i])) {
+            out[len++] = toupper(msg[i] == 'J' ? 'I' : msg[i]);
+        }
+    }
+    out[len] = '\0';
+    char temp[200];
+    int k = 0;
+    for (int i = 0; i < len; i++) {
+        temp[k++] = out[i];
+        if (i+1 < len && out[i] == out[i+1]) {
+            temp[k++] = 'X';
+        } else if (i+1 < len) {
+            temp[k++] = out[++i];
+        }
+    }
+    if (k % 2) temp[k++] = 'X';
+    temp[k] = '\0';
+    strcpy(out, temp);
+}
+void encrypt(char *msg) {
+    int r1, c1, r2, c2;
+    for (int i = 0; msg[i]; i += 2) {
+        findPos(msg[i], &r1, &c1);
+        findPos(msg[i+1], &r2, &c2);
+        if (r1 == r2)
+            printf("%c%c", matrix[r1][(c1+1)%5], matrix[r2][(c2+1)%5]);
+        else if (c1 == c2)
+            printf("%c%c", matrix[(r1+1)%5][c1], matrix[(r2+1)%5][c2]);
+        else
+            printf("%c%c", matrix[r1][c2], matrix[r2][c1]);
+    }
+}
+int main() {
+    char msg[] = "Must see you over Cadogan West. Coming at once.";
+    char clean[200];
+    preprocess(msg, clean);
+    printf("Encrypted: ");
+    encrypt(clean);
+    return 0;
+}
