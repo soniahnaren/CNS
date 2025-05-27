@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+char matrix[5][5];
+void createMatrix(char *key) {
+    int used[26] = {0}, k = 0;
+    used['J' - 'A'] = 1; // Treat I/J as same
+    for (int i = 0; key[i]; i++) {
+        char c = toupper(key[i]);
+        if (c == 'J') c = 'I';
+        if (!used[c - 'A']) {
+            matrix[k / 5][k % 5] = c;
+            used[c - 'A'] = 1;
+            k++;
+        }
+    }
+    for (char c = 'A'; c <= 'Z'; c++) {
+        if (!used[c - 'A']) {
+            matrix[k / 5][k % 5] = c;
+            used[c - 'A'] = 1;
+            k++;
+        }
+    }
+}
+void find(char c, int *row, int *col) {
+    if (c == 'J') c = 'I';
+    for (int i = 0; i < 5; i++)
+        for (int j = 0; j < 5; j++)
+            if (matrix[i][j] == c) {
+                *row = i; *col = j;
+                return;
+            }
+}
+void decrypt(char *text) {
+    for (int i = 0; text[i] && text[i+1]; i += 2) {
+        char a = toupper(text[i]), b = toupper(text[i+1]);
+        if (a == 'J') a = 'I';
+        if (b == 'J') b = 'I';
+        int r1, c1, r2, c2;
+        find(a, &r1, &c1);
+        find(b, &r2, &c2);
+        if (r1 == r2)
+            printf("%c%c", matrix[r1][(c1+4)%5], matrix[r2][(c2+4)%5]);
+        else if (c1 == c2)
+            printf("%c%c", matrix[(r1+4)%5][c1], matrix[(r2+4)%5][c2]);
+        else
+            printf("%c%c", matrix[r1][c2], matrix[r2][c1]);
+    }
+}
+int main() {
+    char key[] = "MONARCHY";
+    char cipher[] = "KXJEYUREBEZWEHEWRYTUHEYFSKREHEGOYFIWTTTUOLKSYCAJPOBOTEIZONTXBYBNTGONEYCUZWRGDSONSXBOUYWRHEBAAHYUSEDQ";
+    createMatrix(key);
+    printf("Decrypted: ");
+    decrypt(cipher);
+    return 0;
+}
