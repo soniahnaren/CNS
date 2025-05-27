@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+char matrix[5][5];
+
+void buildMatrix(const char *key) {
+    int used[26] = {0}, x = 0, y = 0;
+    for (int i = 0; key[i]; i++) {
+        char c = toupper(key[i]);
+        if (c == 'J') c = 'I';
+        if (isalpha(c) && !used[c - 'A']) {
+            matrix[y][x++] = c;
+            used[c - 'A'] = 1;
+            if (x == 5) x = 0, y++;
+        }
+    }
+    for (char c = 'A'; c <= 'Z'; c++) {
+        if (c == 'J') continue;
+        if (!used[c - 'A']) {
+            matrix[y][x++] = c;
+            used[c - 'A'] = 1;
+            if (x == 5) x = 0, y++;
+        }
+    }
+}
+
+void findPos(char c, int *row, int *col) {
+    if (c == 'J') c = 'I';
+    for (int i = 0; i < 5; i++)
+        for (int j = 0; j < 5; j++)
+            if (matrix[i][j] == c) {
+                *row = i; *col = j;
+                return;
+            }
+}
+
+void encrypt(const char *plaintext, char *cipher) {
+    char clean[100] = {0};
+    int k = 0;
+
+    // Preprocess input
+    for (int i = 0; plaintext[i]; i++) {
+        char c = toupper(plaintext[i]);
+        if (isalpha(c)) {
+            if (k > 0 && clean[k-1] == c)
+                clean[k++] = 'X';
+            clean[k++] = (c == 'J') ? 'I' : c;
+        }
+    }
+    if (k % 2) clean[k++] = 'X';
+
+    // Encrypt digraphs
+    for (int i = 0; i < k; i += 2) {
+        int r1, c1, r2, c2;
+        findPos(clean[i], &r1, &c1);
+        findPos(clean[i+1], &r2, &c2);
+        if (r1 == r2) {
+            cipher[i] = matrix[r1][(c1+1)%5];
+            cipher[i+1] = matrix[r2][(c2+1)%5];
+        } else if (c1 == c2) {
+            cipher[i] = matrix[(r1+1)%5][c1];
+            cipher[i+1] = matrix[(r2+1)%5][c2];
+        } else {
+            cipher[i] = matrix[r1][c2];
+            cipher[i+1] = matrix[r2][c1];
+        }
+    }
+    cipher[k] = '\0';
+}
+
+int main() {
+    char key[] = "KEYWORD";
+    char text[100], cipher[100];
+
+    printf("Enter plaintext: ");
+    fgets(text, sizeof(text), stdin);
+
+    buildMatrix(key);
+    encrypt(text, cipher);
+
+    printf("Encrypted text: %s\n", cipher);
+    return 0;
+}
