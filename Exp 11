@@ -1,0 +1,16 @@
+#include <stdio.h>
+#include <math.h>
+int main() {
+    int totalLetters = 25; // A–Z, with I/J combined
+    double log2_total_keys = log2(1);
+    for (int i = 1; i <= totalLetters; i++) {
+        log2_total_keys += log2(i); // log2(25!)
+    }
+    // Approximate value of 25! ≈ 2^84.75
+    printf("a) Total possible keys ≈ 25! ≈ 2^%.2f\n", log2_total_keys);
+
+    // Considering equivalent keys (due to symmetry etc.), estimated unique keys ≈ 2^64
+    printf("b) Estimated effectively unique keys ≈ 2^64\n");
+
+    return 0;
+}
